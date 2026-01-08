@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Language to Text and Speech Conversion</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a6cf7;
+            --primary-dark: #3a5bd9;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f5f7ff;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-weight: 300;
+            font-size: 1.1rem;
+        }
+
+        /* Instructions Panel */
+        .instructions-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .instructions-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .instructions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .instructions-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .instructions-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .instructions-content.open {
+            max-height: 2000px;
+            margin-top: 20px;
+        }
+
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .instruction-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+
+        .instruction-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instruction-card h3 i {
+            font-size: 1.3rem;
+            color: #ffd700;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        .step-number {
+            background: #ffd700;
+            color: #333;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .highlight-box {
+            background: rgba(255, 215, 0, 0.2);
+            border-left: 4px solid #ffd700;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .highlight-box strong {
+            color: #ffd700;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .video-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 800px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .video-section img {
+            width: 100%;
+            display: block;
+        }
+
+        .data-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .sentence-box {
+            background: #f8f9ff;
+            border: 2px solid #e0e4ff;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            min-height: 100px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 1.1rem;
+            color: var(--dark);
+            line-height: 1.5;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            word-wrap: break-word;
+        }
+
+        .current-letter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9ff;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e0e4ff;
+        }
+
+        .letter-display {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn i {
+            font-size: 1.1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--gray-light);
+            color: var(--dark);
+        }
+
+        .btn-outline:hover:not(:disabled) {
+            background: var(--light);
+            border-color: var(--gray);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #333;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+            min-height: 40px;
+        }
+
+        .suggestion-tag {
+            background: #e9ecef;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid #dee2e6;
+        }
+
+        .suggestion-tag:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(74, 108, 247, 0.3);
+        }
+
+        .voice-section {
+            background: #f8f9ff;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 10px;
+            border: 1px solid #e0e4ff;
+        }
+
+        .voice-display {
+            background: white;
+            border: 1px solid #e0e4ff;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            min-height: 80px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin: 10px 0;
+            font-style: italic;
+            color: #495057;
+            word-wrap: break-word;
+        }
+
+        .listening-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: var(--danger);
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .history-section {
+            margin-top: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            border-radius: var(--border-radius);
+        }
+
+        .history-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item:hover {
+            background: #f8f9ff;
+        }
+
+        .history-text {
+            flex: 1;
+            margin-right: 15px;
+            word-break: break-word;
+        }
+
+        .history-time {
+            font-size: 0.8rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 20px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+
+        .status-listening {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-idle {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .alphabet-reference {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .alphabet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .alphabet-item {
+            background: #f8f9ff;
+            border: 2px solid #e0e4ff;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: var(--primary);
+            transition: var(--transition);
+            cursor: default;
+        }
+
+        .alphabet-item:hover {
+            background: #e0e4ff;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .video-section, .data-section {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .instructions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 10;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+
+            .alphabet-grid {
+                grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        .tip-icon {
+            color: #ffd700;
+            margin-right: 5px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-actions .btn {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🤟 Sign Language to Text & Speech</h1>
+            <p class="subtitle">Real-time ASL translation with AI-powered recognition</p>
+        </header>
+
+        <!-- Instructions Banner -->
+        <div class="instructions-banner" onclick="toggleInstructions()">
+            <div class="instructions-header">
+                <div class="instructions-title">
+                    <i class="fas fa-info-circle"></i>
+                    📖 How to Use This App - Click to Read Instructions
+                </div>
+                <i class="fas fa-chevron-down toggle-icon" id="toggle-icon"></i>
+            </div>
+            <div class="instructions-content" id="instructions-content">
+                <div class="instructions-grid">
+                    <!-- Card 1: Getting Started -->
+                    <div class="instruction-card">
+                        <h3><i class="fas fa-rocket"></i> Getting Started</h3>
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Position yourself in front of the camera with good lighting</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Ensure your hand is clearly visible in the camera frame</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Start making ASL signs - letters will appear automatically</div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Making Signs -->
+                    <div class="instruction-card">
+                        <h3><i class="fas fa-hand-paper"></i> Making Signs</h3>
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Form clear ASL letter signs (A-Z)</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Hold each sign steady for <strong>2 seconds</strong></div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div class="step-text">The letter will be added to your sentence once recognized</div>
+                        </div>
+                        <div class="highlight-box">
+                            <i class="fas fa-lightbulb tip-icon"></i>
+                            <strong>Tip:</strong> Keep your hand movements smooth and steady for best results
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Adding Spaces -->
+                    <div class="instruction-card">
+                        <h3><i class="fas fa-arrows-alt-h"></i> Adding Spaces</h3>
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div class="step-text">To add a space between words, remove your hand from the camera</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Keep your hand away for <strong>4 seconds</strong></div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div class="step-text">A space will automatically be added OR use the Space button</div>
+                        </div>
+                        <div class="highlight-box">
+                            <i class="fas fa-lightbulb tip-icon"></i>
+                            <strong>Manual Control:</strong> You can also use the "Add Space" button anytime!
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Smart Features -->
+                    <div class="instruction-card">
+                        <h3><i class="fas fa-magic"></i> Smart Features</h3>
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div class="step-text"><strong>Suggestions:</strong> Click on suggested words to auto-complete</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div class="step-text"><strong>Text-to-Speech:</strong> Click "Speak" to hear your sentence</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div class="step-text"><strong>Quick Actions:</strong> Backspace, Space, and Clear buttons</div>
+                        </div>
+                        <div class="highlight-box">
+                            <i class="fas fa-lightbulb tip-icon"></i>
+                            <strong>History:</strong> All transcriptions are saved automatically - click to copy!
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Voice Recognition -->
+                    <div class="instruction-card">
+                        <h3><i class="fas fa-microphone"></i> Voice Recognition (Web Speech API)</h3>
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <div class="step-text">Click "Start Recording" to begin voice capture</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <div class="step-text">Speak clearly into your microphone</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <div class="step-text">Click "Stop Recording" to save the transcription</div>
+                        </div>
+                        <div class="highlight-box">
+                            <i class="fas fa-lightbulb tip-icon"></i>
+                            <strong>Note:</strong> Works best in Chrome and Edge browsers
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Best Practices -->
+                    <div class="instruction-card">
+                        <h3><i class="fas fa-star"></i> Best Practices</h3>
+                        <div class="instruction-step">
+                            <div class="step-number">✓</div>
+                            <div class="step-text">Use good lighting for better hand detection</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">✓</div>
+                            <div class="step-text">Keep background simple and uncluttered</div>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">✓</div>
+                            <div class="step-text">Practice with the alphabet reference below</div>
+                        </div>
+                        <div class="highlight-box">
+                            <i class="fas fa-lightbulb tip-icon"></i>
+                            <strong>Remember:</strong> Patience and steady hands = better accuracy!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Reference -->
+                <div class="highlight-box" style="margin-top: 20px; background: rgba(255, 255, 255, 0.2);">
+                    <h4 style="margin-bottom: 10px; color: #ffd700;">⚡ Quick Reference:</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                        <div><strong>Hold Sign:</strong> 2 seconds</div>
+                        <div><strong>Auto Space:</strong> Remove hand for 4 seconds</div>
+                        <div><strong>Manual Space:</strong> Click Space button</div>
+                        <div><strong>Delete:</strong> Use Backspace button</div>
+                        <div><strong>Clear All:</strong> Use Clear button</div>
+                        <div><strong>Copy History:</strong> Click any history item</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alphabet Reference -->
+        <div class="alphabet-reference">
+            <h3 class="section-title"><i class="fas fa-font"></i> ASL Alphabet Reference (A-Z)</h3>
+            <p style="color: var(--gray); margin-bottom: 15px;">Supported letters for sign language recognition:</p>
+            <div class="alphabet-grid">
+                <div class="alphabet-item">A</div>
+                <div class="alphabet-item">B</div>
+                <div class="alphabet-item">C</div>
+                <div class="alphabet-item">D</div>
+                <div class="alphabet-item">E</div>
+                <div class="alphabet-item">F</div>
+                <div class="alphabet-item">G</div>
+                <div class="alphabet-item">H</div>
+                <div class="alphabet-item">I</div>
+                <div class="alphabet-item">J</div>
+                <div class="alphabet-item">K</div>
+                <div class="alphabet-item">L</div>
+                <div class="alphabet-item">M</div>
+                <div class="alphabet-item">N</div>
+                <div class="alphabet-item">O</div>
+                <div class="alphabet-item">P</div>
+                <div class="alphabet-item">Q</div>
+                <div class="alphabet-item">R</div>
+                <div class="alphabet-item">S</div>
+                <div class="alphabet-item">T</div>
+                <div class="alphabet-item">U</div>
+                <div class="alphabet-item">V</div>
+                <div class="alphabet-item">W</div>
+                <div class="alphabet-item">X</div>
+                <div class="alphabet-item">Y</div>
+                <div class="alphabet-item">Z</div>
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="video-section">
+                <img src="{{ url_for('video_feed') }}" alt="Live Camera Feed">
+            </div>
+
+            <div class="data-section">
+                <div>
+                    <h3 class="section-title"><i class="fas fa-language"></i> Translated Text</h3>
+                    <div class="sentence-box" id="sentence">Start signing to see translation...</div>
+                    
+                    <div class="current-letter">
+                        <span>Current Letter:</span>
+                        <div class="letter-display" id="letter">-</div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="speakText()" data-tooltip="Convert text to speech">
+                            <i class="fas fa-volume-up"></i> Speak
+                        </button>
+                        <button class="btn btn-danger" onclick="clearText()" data-tooltip="Clear all text">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="btn btn-warning" onclick="deleteLastChar()" data-tooltip="Delete last character">
+                            <i class="fas fa-backspace"></i> Backspace
+                        </button>
+                        <button class="btn btn-info" onclick="addSpace()" data-tooltip="Add a space">
+                            <i class="fas fa-space-shuttle"></i> Space
+                        </button>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div>
+                    <h3 class="section-title"><i class="fas fa-lightbulb"></i> Word Suggestions</h3>
+                    <div id="recommendations" class="suggestions">
+                        <span class="empty-state">Suggestions will appear here</span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="voice-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-microphone"></i> Voice Transcription
+                        <span id="listening-status" class="status-badge status-idle">Idle</span>
+                    </h3>
+                    <div class="button-group">
+                        <button class="btn btn-success" id="start-voice-btn" onclick="startVoiceRecognition()" data-tooltip="Start voice recording">
+                            <i class="fas fa-microphone"></i> Start Recording
+                        </button>
+                        <button class="btn btn-danger" id="stop-voice-btn" onclick="stopVoiceRecognition()" disabled data-tooltip="Stop recording">
+                            <i class="fas fa-stop"></i> Stop Recording
+                        </button>
+                    </div>
+                    <div class="voice-display" id="voice">
+                        <span>Click "Start Recording" to begin voice transcription...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                <h3 class="section-title"><i class="fas fa-history"></i> Transcription History</h3>
+                <button class="btn btn-outline" onclick="clearHistory()" data-tooltip="Clear all history">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>
+            <div id="transcription-history" class="history-list">
+                <div class="empty-state">
+                    No transcriptions yet. Your transcriptions will appear here.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== STATE MANAGEMENT ====================
+        let transcriptionHistory = [];
+        let lastSentence = "";
+        let recognition = null;
+        let isListening = false;
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHistory();
+            updateHistoryDisplay();
+            startDataPolling();
+            initializeSpeechRecognition();
+        });
+
+        // ==================== TOGGLE INSTRUCTIONS ====================
+        function toggleInstructions() {
+            const content = document.getElementById('instructions-content');
+            const icon = document.getElementById('toggle-icon');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+            }
+        }
+
+        // ==================== HISTORY MANAGEMENT ====================
+        function loadHistory() {
+            try {
+                const stored = localStorage.getItem('transcriptionHistory');
+                if (stored) {
+                    transcriptionHistory = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Error loading history:', e);
+                transcriptionHistory = [];
+            }
+        }
+
+        function saveHistory() {
+            try {
+                localStorage.setItem('transcriptionHistory', JSON.stringify(transcriptionHistory));
+            } catch (e) {
+                console.error('Error saving history:', e);
+            }
+        }
+
+        function addToHistory(text, source = 'sign') {
+            if (!text || text.trim() === '' || 
+                text.includes('Click') || 
+                text.includes('Start signing') ||
+                text.includes('Listening')) {
+                return;
+            }
+
+            const timestamp = new Date().toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            transcriptionHistory.unshift({
+                text: text.trim(),
+                timestamp: timestamp,
+                source: source,
+                id: Date.now()
+            });
+
+            if (transcriptionHistory.length > 50) {
+                transcriptionHistory = transcriptionHistory.slice(0, 50);
+            }
+
+            saveHistory();
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const historyContainer = document.getElementById('transcription-history');
+            
+            if (transcriptionHistory.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-state">
+                        No transcriptions yet. Your transcriptions will appear here.
+                    </div>
+                `;
+                return;
+            }
+
+            historyContainer.innerHTML = transcriptionHistory.map(item => {
+                const icon = item.source === 'voice' ? 'fa-microphone' : 'fa-hand-paper';
+                const iconColor = item.source === 'voice' ? 'var(--success)' : 'var(--primary)';
+                return `
+                    <div class="history-item" onclick="copyToClipboard(this, '${escapeHtml(item.text)}')">
+                        <div class="history-text">
+                            <i class="fas ${icon}" style="margin-right: 8px; color: ${iconColor};"></i>
+                            ${escapeHtml(item.text)}
+                        </div>
+                        <div class="history-time">${item.timestamp}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyToClipboard(element, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalBg = element.style.background;
+                element.style.background = '#e8f5e9';
+                
+                const textEl = element.querySelector('.history-text');
+                const originalHtml = textEl.innerHTML;
+                textEl.innerHTML = '<i class="fas fa-check" style="margin-right: 8px; color: var(--success);"></i>Copied to clipboard!';
+                
+                setTimeout(() => {
+                    element.style.background = originalBg;
+                    textEl.innerHTML = originalHtml;
+                }, 2000);
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear all transcription history?')) {
+                transcriptionHistory = [];
+                localStorage.removeItem('transcriptionHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        // ==================== DATA POLLING ====================
+        function startDataPolling() {
+            setInterval(updateData, 500);
+        }
+
+        function updateData() {
+            fetch('/get_text')
+                .then(r => r.json())
+                .then(data => {
+                    const sentenceElement = document.getElementById('sentence');
+                    if (data.sentence && data.sentence.trim() !== '') {
+                        if (data.sentence !== lastSentence) {
+                            sentenceElement.textContent = data.sentence;
+                            
+                            if (lastSentence !== '' && data.sentence.length > lastSentence.length + 2) {
+                                addToHistory(data.sentence, 'sign');
+                            }
+                            lastSentence = data.sentence;
+                        }
+                    } else if (!lastSentence) {
+                        sentenceElement.textContent = 'Start signing to see translation...';
+                    }
+
+                    const letterElement = document.getElementById('letter');
+                    letterElement.textContent = data.letter || '-';
+
+                    updateRecommendations(data.recs);
+                })
+                .catch(error => {
+                    console.error('Error updating data:', error);
+                });
+        }
+
+        function updateRecommendations(recs) {
+            const recDiv = document.getElementById('recommendations');
+            
+            if (recs && recs.length > 0) {
+                recDiv.innerHTML = recs.map(word => 
+                    `<span class="suggestion-tag" onclick="applySuggestion('${word}')">${word}</span>`
+                ).join('');
+            } else {
+                recDiv.innerHTML = '<span class="empty-state">No suggestions available</span>';
+            }
+        }
+
+        function applySuggestion(word) {
+            fetch('/append_suggestion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ word: word })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.ok) {
+                    document.getElementById('sentence').textContent = data.sentence;
+                    lastSentence = data.sentence;
+                }
+            })
+            .catch(err => console.error('Error applying suggestion:', err));
+        }
+
+        // ==================== TEXT CONTROLS ====================
+        function clearText() {
+            if (confirm('Clear all translated text?')) {
+                fetch('/clear', { method: 'POST' })
+                    .then(r => r.json())
+                    .then(() => {
+                        document.getElementById('sentence').textContent = 'Start signing to see translation...';
+                        document.getElementById('letter').textContent = '-';
+                        lastSentence = '';
+                    })
+                    .catch(err => console.error('Error clearing text:', err));
+            }
+        }
+
+        function deleteLastChar() {
+            fetch('/delete_last', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        document.getElementById('sentence').textContent = data.sentence || 'Start signing to see translation...';
+                        lastSentence = data.sentence;
+                    }
+                })
+                .catch(err => console.error('Error deleting character:', err));
+        }
+
+        function addSpace() {
+            fetch('/add_space', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.ok) {
+                        document.getElementById('sentence').textContent = data.sentence;
+                        lastSentence = data.sentence;
+                    }
+                })
+                .catch(err => console.error('Error adding space:', err));
+        }
+
+        function speakText() {
+            const text = document.getElementById('sentence').textContent;
+            
+            if (!text || text === 'Start signing to see translation...') {
+                alert('No text to speak');
+                return;
+            }
+
+            if ('speechSynthesis' in window) {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+            } else {
+                alert('Text-to-speech is not supported in your browser');
+            }
+        }
+
+        // ==================== WEB SPEECH API (VOICE RECOGNITION) ====================
+        function initializeSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                console.warn('Speech recognition not supported');
+                document.getElementById('start-voice-btn').disabled = true;
+                document.getElementById('voice').innerHTML = '<span style="color: var(--danger);">Voice recognition not supported in this browser. Please use Chrome or Edge.</span>';
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                isListening = true;
+                finalTranscript = '';
+                interimTranscript = '';
+                document.getElementById('listening-status').className = 'status-badge status-listening';
+                document.getElementById('listening-status').innerHTML = '<span class="listening-indicator"></span>Listening';
+                document.getElementById('start-voice-btn').disabled = true;
+                document.getElementById('stop-voice-btn').disabled = false;
+                document.getElementById('voice').innerHTML = '<span class="loading">Listening... Speak now</span>';
+            };
+
+            recognition.onresult = function(event) {
+                interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript + ' ';
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+
+                const displayText = finalTranscript + interimTranscript;
+                document.getElementById('voice').textContent = displayText || 'Listening... Speak now';
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                let errorMessage = 'Error: ';
+                
+                switch(event.error) {
+                    case 'no-speech':
+                        errorMessage += 'No speech detected. Please try again.';
+                        break;
+                    case 'audio-capture':
+                        errorMessage += 'Microphone not found or not allowed.';
+                        break;
+                    case 'not-allowed':
+                        errorMessage += 'Microphone permission denied.';
+                        break;
+                    case 'network':
+                        errorMessage += 'Network error. Please check your connection.';
+                        break;
+                    default:
+                        errorMessage += event.error;
+                }
+                
+                document.getElementById('voice').innerHTML = '<span style="color: var(--danger);">' + errorMessage + '</span>';
+                stopVoiceRecognition();
+            };
+
+            recognition.onend = function() {
+                if (isListening) {
+                    // Automatically restart if we're still supposed to be listening
+                    try {
+                        recognition.start();
+                    } catch(e) {
+                        console.log('Recognition restart failed:', e);
+                        stopVoiceRecognition();
+                    }
+                }
+            };
+        }
+
+        function startVoiceRecognition() {
+            if (!recognition) {
+                alert('Speech recognition is not available in your browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            try {
+                isListening = true;
+                finalTranscript = '';
+                interimTranscript = '';
+                recognition.start();
+            } catch (e) {
+                console.error('Error starting recognition:', e);
+                alert('Failed to start voice recognition. Please check your microphone permissions.');
+            }
+        }
+
+        function stopVoiceRecognition() {
+            if (recognition && isListening) {
+                isListening = false;
+                recognition.stop();
+                
+                document.getElementById('listening-status').className = 'status-badge status-idle';
+                document.getElementById('listening-status').textContent = 'Idle';
+                document.getElementById('start-voice-btn').disabled = false;
+                document.getElementById('stop-voice-btn').disabled = true;
+                
+                const voiceElement = document.getElementById('voice');
+                const currentText = voiceElement.textContent;
+                
+                if (currentText && 
+                    !currentText.includes('Click') && 
+                    !currentText.includes('Listening') && 
+                    !currentText.includes('Error') &&
+                    currentText.trim().length > 0) {
+                    addToHistory(currentText, 'voice');
+                    voiceElement.innerHTML = '<strong>Last Recording:</strong> ' + currentText;
+                } else {
+                    voiceElement.innerHTML = '<span>Click "Start Recording" to begin voice transcription...</span>';
+                }
+            }
+        }
+
+        // ==================== CLEANUP ====================
+        window.addEventListener('beforeunload', function() {
+            if (isListening) {
+                stopVoiceRecognition();
+            }
+        });
+    </script>
+</body>
+</html>

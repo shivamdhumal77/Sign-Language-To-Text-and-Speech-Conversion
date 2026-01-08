@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  sign-language-app:
+    build: .
+    container_name: sign-language-converter
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./sign_language_AZ_CNN.h5:/app/sign_language_AZ_CNN.h5:ro
+      - ./templates:/app/templates:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    devices:
+      - /dev/video0:/dev/video0  # Grant access to webcam (Linux)
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
